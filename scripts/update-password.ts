@@ -39,13 +39,13 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1);
 }
 
-async function main() {
+async function main(adminEmail: string, adminPassword: string) {
   const supabase = createClient(supabaseUrl as string, supabaseServiceKey as string);
-  const password_hash = await bcrypt.hash(password, 10);
+  const password_hash = await bcrypt.hash(adminPassword, 10);
   const { data, error } = await supabase
     .from("users")
     .update({ password_hash, updated_at: new Date().toISOString() })
-    .eq("email", email)
+    .eq("email", adminEmail)
     .select("id, email")
     .single();
 
@@ -62,4 +62,4 @@ async function main() {
   console.log("Password updated for:", data.email);
 }
 
-main();
+main(email, password);
