@@ -8,11 +8,7 @@ Internal support ticketing MVP: employees submit tickets with priority; admins/a
 
 1. Copy `.env.local.example` to `.env.local` and set Supabase URL, service role key, `NEXTAUTH_URL`, and `NEXTAUTH_SECRET`.
 2. In Supabase SQL Editor, run `supabase/migrations/001_initial_schema.sql`.
-<<<<<<< HEAD
 3. Run migrations 002 and 003 in Supabase SQL Editor, then set your admin password: `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local`, then `npx tsx scripts/update-password.ts`. Or seed a new admin with `npm run seed` (set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local`; defaults are placeholders).
-=======
-3. Seed the first admin user: `npm run seed`. 
->>>>>>> 268fd3c49247bdfecc9ed3ed356b677c0369a43d
 4. Run `npm run dev`.
 
 ## Getting Started
@@ -46,6 +42,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy is the [Vercel Platform](https://vercel.com/new). **For login to work in production**, set these environment variables in your Vercel project (Settings → Environment Variables):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Description |
+|----------|-------------|
+| `NEXTAUTH_URL` | **Your live app URL**, e.g. `https://your-app.vercel.app` (must match the deployed URL) |
+| `NEXTAUTH_SECRET` | A random secret (e.g. `openssl rand -base64 32`) — required in production |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only) |
+
+If `NEXTAUTH_URL` is wrong or `NEXTAUTH_SECRET` is missing, sign-in will work on localhost but fail on the live site. After changing env vars, redeploy the app.

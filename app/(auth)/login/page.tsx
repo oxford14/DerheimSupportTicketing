@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -11,7 +11,6 @@ import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl =
     searchParams.get("callbackUrl") ?? "/dashboard";
@@ -24,19 +23,27 @@ function LoginForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    setLoading(false);
-    if (res?.error) {
-      setError("Invalid email or password.");
-      return;
-    }
-    if (res?.ok) {
-      router.push(callbackUrl);
-      router.refresh();
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (res?.error) {
+        setError("Invalid email or password.");
+        return;
+      }
+      if (res?.ok) {
+        // Full page navigation so the new session is picked up (required when using redirect: false, especially in production)
+        window.location.href = callbackUrl;
+        return;
+      }
+      // API may have failed (e.g. 500) or returned an unexpected shape
+      setError("Something went wrong. Please try again.");
+    } catch {
+      setError("Something went wrong. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
