@@ -16,6 +16,7 @@ export type AdminTicketRow = {
   description: string | null;
   priority: string;
   status: string;
+  source?: string;
   created_at: string;
   created_by: string;
   assigned_to: string | null;
@@ -39,7 +40,7 @@ export async function getAllTickets(filters?: {
 
   const supabase = getSupabaseServer();
   const select =
-    "id, title, description, priority, status, created_at, created_by, assigned_to, creator:created_by(full_name, email), assignee:assigned_to(full_name, email)";
+    "id, title, description, priority, status, source, created_at, created_by, assigned_to, creator:created_by(full_name, email), assignee:assigned_to(full_name, email)";
   const usePagination = filters?.page != null && filters.page >= 1;
   const pageSize = usePagination ? (filters?.pageSize ?? DEFAULT_PAGE_SIZE) : 0;
   const from = usePagination ? (filters.page! - 1) * pageSize : 0;
@@ -72,6 +73,7 @@ export async function getAllTickets(filters?: {
     description: string | null;
     priority: string;
     status: string;
+    source?: string;
     created_at: string;
     created_by: string;
     assigned_to: string | null;
@@ -105,7 +107,7 @@ export async function getTicketsAssignedToMe(filters?: {
   let q = supabase
     .from("tickets")
     .select(
-      "id, title, description, priority, status, created_at, created_by, assigned_to, creator:created_by(full_name, email), assignee:assigned_to(full_name, email)"
+      "id, title, description, priority, status, source, created_at, created_by, assigned_to, creator:created_by(full_name, email), assignee:assigned_to(full_name, email)"
     )
     .eq("assigned_to", session.user.id)
     .order("created_at", { ascending: false });
@@ -126,6 +128,7 @@ export async function getTicketsAssignedToMe(filters?: {
     description: string | null;
     priority: string;
     status: string;
+    source?: string;
     created_at: string;
     created_by: string;
     assigned_to: string | null;
@@ -342,6 +345,62 @@ export async function createUser(formData: FormData) {
   return { success: true };
 }
 
+export async function updateUser(userId: string, formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return { error: "Unauthorized" };
+  const role = (session.user as { role?: string }).role;
+  if (role !== "admin") return { error: "Only admins can update users" };
+
+  const email = (formData.get("email") as string | null)?.trim() || "";
+  const full_name = ((formData.get("full_name") as string | null)?.trim() || "") || null;
+  const userRole = ((formData.get("role") as string | null)?.trim() || "") || "";
+  const password = (formData.get("password") as string | null) || "";
+
+  if (!userId) return { error: "User id is required" };
+  if (!email) return { error: "Email is required" };
+  const allowedRoles = ["employee", "agent", "admin"];
+  if (!allowedRoles.includes(userRole)) return { error: "Invalid role" };
+  if (password && password.length < 6) return { error: "Password must be at least 6 characters" };
+
+  const updates: {
+    email: string;
+    full_name: string | null;
+    role: string;
+    password_hash?: string;
+  } = { email, full_name, role: userRole };
+
+  if (password) {
+    const bcrypt = await import("bcryptjs");
+    updates.password_hash = await bcrypt.hash(password, 10);
+  }
+
+  const supabase = getSupabaseServer();
+  const { error } = await supabase.from("users").update(updates).eq("id", userId);
+
+  if (error) {
+    if (error.code === "23505") return { error: "A user with this email already exists" };
+    return { error: error.message };
+  }
+  revalidatePath("/admin/users");
+  return { success: true };
+}
+
+export async function deleteUser(userId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return { error: "Unauthorized" };
+  const role = (session.user as { role?: string }).role;
+  if (role !== "admin") return { error: "Only admins can delete users" };
+  if (!userId) return { error: "User id is required" };
+  if (session.user.id === userId) return { error: "You cannot delete your own account" };
+
+  const supabase = getSupabaseServer();
+  const { error } = await supabase.from("users").delete().eq("id", userId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/users");
+  return { success: true };
+}
+
 export async function updateTicketStatus(id: string, status: Status) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return { error: "Unauthorized" };
@@ -391,7 +450,7 @@ export async function getTicketById(id: string) {
   const { data } = await supabase
     .from("tickets")
     .select(
-      "id, title, description, priority, status, created_at, updated_at, created_by, assigned_to, creator:created_by(full_name, email), assignee:assigned_to(full_name, email)"
+      "id, title, description, priority, status, source, created_at, updated_at, created_by, assigned_to, creator:created_by(full_name, email), assignee:assigned_to(full_name, email)"
     )
     .eq("id", id)
     .single();
@@ -403,6 +462,7 @@ export async function getTicketById(id: string) {
     description: string | null;
     priority: string;
     status: string;
+    source?: string;
     created_at: string;
     updated_at: string;
     created_by: string;

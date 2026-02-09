@@ -9,9 +9,11 @@ import { uploadTicketAttachment } from "@/lib/storage";
 
 const PRIORITIES = ["low", "medium", "high", "urgent"] as const;
 const STATUSES = ["open", "in_progress", "resolved", "closed"] as const;
+const SOURCES = ["portal", "phone", "email", "whatsapp", "other"] as const;
 
 export type Priority = (typeof PRIORITIES)[number];
 export type Status = (typeof STATUSES)[number];
+export type TicketSource = (typeof SOURCES)[number];
 
 export async function createTicket(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -20,10 +22,15 @@ export async function createTicket(formData: FormData) {
   const title = formData.get("title") as string | null;
   const description = (formData.get("description") as string) || null;
   const priority = formData.get("priority") as string | null;
+  // Omitted source (e.g. employee portal form) → store as "portal"
+  const sourceRaw = (formData.get("source") as string | null)?.trim() || null;
+  const source: TicketSource = (sourceRaw as TicketSource) || "portal";
 
   if (!title?.trim()) return { error: "Title is required" };
   if (!priority || !PRIORITIES.includes(priority as Priority))
     return { error: "Invalid priority" };
+  if (sourceRaw && !SOURCES.includes(sourceRaw as TicketSource))
+    return { error: "Invalid source" };
 
   const supabase = getSupabaseServer();
   const { data: inserted, error } = await supabase
@@ -34,6 +41,7 @@ export async function createTicket(formData: FormData) {
       priority: priority as Priority,
       status: "open",
       created_by: session.user.id,
+      source,
     })
     .select("id, title")
     .single();

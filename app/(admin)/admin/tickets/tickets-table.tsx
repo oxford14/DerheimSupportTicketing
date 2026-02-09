@@ -25,6 +25,7 @@ type Ticket = {
   description: string | null;
   priority: string;
   status: string;
+  source?: string;
   created_at: string;
   created_by: string;
   assigned_to: string | null;
@@ -68,6 +69,7 @@ export function TicketsTable({ tickets, agents }: TicketsTableProps) {
             <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
             <TableCell sx={{ fontWeight: 600 }}>Priority</TableCell>
             <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Source</TableCell>
             <TableCell sx={{ fontWeight: 600 }}>Created by</TableCell>
             <TableCell sx={{ fontWeight: 600 }}>Assigned to</TableCell>
             <TableCell sx={{ fontWeight: 600 }}>Created</TableCell>
@@ -150,6 +152,9 @@ export function TicketsTable({ tickets, agents }: TicketsTableProps) {
                     </FormControl>
                   </form>
                 </Box>
+              </TableCell>
+              <TableCell sx={{ color: "text.secondary" }}>
+                {(t.source || "portal").replaceAll("_", " ")}
               </TableCell>
               <TableCell>{t.creator?.email ?? t.created_by}</TableCell>
               <TableCell>

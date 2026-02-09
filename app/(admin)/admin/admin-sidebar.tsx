@@ -13,6 +13,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import PostAddIcon from "@mui/icons-material/PostAdd";
 import PersonIcon from "@mui/icons-material/Person";
 import GroupIcon from "@mui/icons-material/Group";
 
@@ -22,6 +23,7 @@ const drawerWidthCollapsed = 64;
 const nav = [
   { href: "/admin/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { href: "/admin/tickets", label: "Tickets", icon: <ConfirmationNumberIcon /> },
+  { href: "/admin/new-ticket", label: "New Ticket", icon: <PostAddIcon /> },
   { href: "/admin/my-tickets", label: "My Tickets", icon: <PersonIcon /> },
   { href: "/admin/users", label: "Users", icon: <GroupIcon /> },
 ];

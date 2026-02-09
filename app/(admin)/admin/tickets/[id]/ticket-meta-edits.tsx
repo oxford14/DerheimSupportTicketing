@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { updateTicketPriority, updateTicketStatus } from "@/lib/actions/admin";
 import type { Priority, Status } from "@/lib/actions/tickets";
 import FormControl from "@mui/material/FormControl";
@@ -28,67 +30,68 @@ const STATUS_OPTIONS: { value: Status; label: string }[] = [
 ];
 
 export function TicketMetaEdits({ ticketId, priority, status }: TicketMetaEditsProps) {
+  const router = useRouter();
+  const [priorityValue, setPriorityValue] = useState<Priority>(priority as Priority);
+  const [statusValue, setStatusValue] = useState<Status>(status as Status);
+  const [saving, setSaving] = useState<"priority" | "status" | null>(null);
+
+  const handlePriorityChange = async (newPriority: Priority) => {
+    setPriorityValue(newPriority);
+    setSaving("priority");
+    const result = await updateTicketPriority(ticketId, newPriority);
+    setSaving(null);
+    if (result?.error) setPriorityValue(priority as Priority);
+    else router.refresh();
+  };
+
+  const handleStatusChange = async (newStatus: Status) => {
+    setStatusValue(newStatus);
+    setSaving("status");
+    const result = await updateTicketStatus(ticketId, newStatus);
+    setSaving(null);
+    if (result?.error) setStatusValue(status as Status);
+    else router.refresh();
+  };
+
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
       <Box>
         <Box component="span" sx={{ fontSize: "0.75rem", color: "text.secondary", display: "block", mb: 0.5 }}>
           Priority
         </Box>
-        <form
-          data-ticket-priority={ticketId}
-          action={async (fd) => {
-            const p = fd.get("priority") as Priority;
-            await updateTicketPriority(ticketId, p);
-          }}
-          style={{ display: "inline-block" }}
-        >
-          <FormControl size="small" variant="outlined" sx={{ minWidth: 120 }}>
-            <Select
-              name="priority"
-              defaultValue={priority}
-              onChange={() =>
-                (document.querySelector(`form[data-ticket-priority="${ticketId}"]`) as HTMLFormElement)?.requestSubmit()
-              }
-              size="small"
-            >
-              {PRIORITY_OPTIONS.map((o) => (
-                <MenuItem key={o.value} value={o.value}>
-                  {o.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </form>
+        <FormControl size="small" variant="outlined" sx={{ minWidth: 120 }}>
+          <Select<Priority>
+            value={priorityValue}
+            onChange={(e) => handlePriorityChange(e.target.value as Priority)}
+            size="small"
+            disabled={saving === "priority"}
+          >
+            {PRIORITY_OPTIONS.map((o) => (
+              <MenuItem key={o.value} value={o.value}>
+                {o.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
       <Box>
         <Box component="span" sx={{ fontSize: "0.75rem", color: "text.secondary", display: "block", mb: 0.5 }}>
           Status
         </Box>
-        <form
-          data-ticket-status={ticketId}
-          action={async (fd) => {
-            const s = fd.get("status") as Status;
-            await updateTicketStatus(ticketId, s);
-          }}
-          style={{ display: "inline-block" }}
-        >
-          <FormControl size="small" variant="outlined" sx={{ minWidth: 120 }}>
-            <Select
-              name="status"
-              defaultValue={status}
-              onChange={() =>
-                (document.querySelector(`form[data-ticket-status="${ticketId}"]`) as HTMLFormElement)?.requestSubmit()
-              }
-              size="small"
-            >
-              {STATUS_OPTIONS.map((o) => (
-                <MenuItem key={o.value} value={o.value}>
-                  {o.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </form>
+        <FormControl size="small" variant="outlined" sx={{ minWidth: 120 }}>
+          <Select<Status>
+            value={statusValue}
+            onChange={(e) => handleStatusChange(e.target.value as Status)}
+            size="small"
+            disabled={saving === "status"}
+          >
+            {STATUS_OPTIONS.map((o) => (
+              <MenuItem key={o.value} value={o.value}>
+                {o.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
     </Box>
   );

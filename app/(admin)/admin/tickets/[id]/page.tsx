@@ -76,6 +76,9 @@ export default async function AdminTicketDetailPage({
                   Created by {ticket.creator.full_name || ticket.creator.email}
                 </Typography>
               )}
+              <Typography variant="caption" color="text.secondary">
+                Source {(ticket.source || "portal").replaceAll("_", " ")}
+              </Typography>
               {ticket.assignee && (
                 <Typography variant="caption" color="text.secondary">
                   Assigned to {ticket.assignee.full_name || ticket.assignee.email}
