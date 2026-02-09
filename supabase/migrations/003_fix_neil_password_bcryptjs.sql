@@ -1,7 +1,7 @@
--- Fix password for nf@masnd.com so login works (bcryptjs-compatible hash for "hackmenot")
--- Run in Supabase SQL Editor. No API key needed.
+-- Set bcryptjs-compatible password hash for initial admin (password: ChangeMeInProduction!)
+-- Run in Supabase SQL Editor. Then run: npx tsx scripts/update-password.ts with ADMIN_EMAIL and ADMIN_PASSWORD.
 
 update public.users
-set password_hash = '$2a$10$M6bd8z9VyGiTh4NzTQEAQeZ2KDN8K54ArjqIvg7uC9ZwRaE7Qh2fG',
+set password_hash = '$2a$10$8lVeRy2Q8JBmpCaDAICz0eH4bo7Q1p.TWInm5FZXYWw1ge7JveiAG',
     updated_at = now()
-where email = 'nf@masnd.com';
+where email = 'admin@example.com';

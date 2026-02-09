@@ -1,7 +1,7 @@
 /**
  * Update password for an existing user (bcryptjs hash so login works).
  * Usage: npx tsx scripts/update-password.ts
- * Set in .env.local: ADMIN_EMAIL=nf@masnd.com ADMIN_PASSWORD=hackmenot
+ * Set in .env.local: ADMIN_EMAIL=your@email.com ADMIN_PASSWORD=your-secure-password
  */
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "bcryptjs";
@@ -27,8 +27,12 @@ loadEnvLocal();
 
 const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
 const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").trim();
-const email = process.env.ADMIN_EMAIL ?? "nf@masnd.com";
-const password = process.env.ADMIN_PASSWORD ?? "hackmenot";
+const email = process.env.ADMIN_EMAIL?.trim();
+const password = process.env.ADMIN_PASSWORD?.trim();
+if (!email || !password) {
+  console.error("Set ADMIN_EMAIL and ADMIN_PASSWORD in .env.local (no defaults for security).");
+  process.exit(1);
+}
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local");

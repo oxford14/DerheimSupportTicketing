@@ -2,11 +2,13 @@
 
 Internal support ticketing MVP: employees submit tickets with priority; admins/agents assign and manage them. Supabase (data only), NextAuth (Credentials), Resend-ready.
 
+**If GitGuardian or another scanner reported a secret leak:** Any previously committed credentials (e.g. admin email/password) have been removed from this repo and replaced with placeholders. If your real credentials were ever pushed, rotate them immediately: change the admin password via your database or `npx tsx scripts/update-password.ts`, and update any other exposed secrets.
+
 ## Setup
 
 1. Copy `.env.local.example` to `.env.local` and set Supabase URL, service role key, `NEXTAUTH_URL`, and `NEXTAUTH_SECRET`.
 2. In Supabase SQL Editor, run `supabase/migrations/001_initial_schema.sql`.
-3. Seed the first admin user: `npm run seed`. Optionally set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local` (default: admin@derheim.local / Admin123!).
+3. Run migrations 002 and 003 in Supabase SQL Editor, then set your admin password: `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local`, then `npx tsx scripts/update-password.ts`. Or seed a new admin with `npm run seed` (set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local`; defaults are placeholders).
 4. Run `npm run dev`.
 
 ## Getting Started

@@ -27,8 +27,8 @@ loadEnvLocal();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const email = process.env.ADMIN_EMAIL ?? "admin@derheim.local";
-const password = process.env.ADMIN_PASSWORD ?? "Admin123!";
+const email = process.env.ADMIN_EMAIL ?? "admin@example.com";
+const password = process.env.ADMIN_PASSWORD ?? "ChangeMeInProduction!";
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local");
