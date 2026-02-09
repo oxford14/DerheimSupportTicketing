@@ -8,7 +8,11 @@ Internal support ticketing MVP: employees submit tickets with priority; admins/a
 
 1. Copy `.env.local.example` to `.env.local` and set Supabase URL, service role key, `NEXTAUTH_URL`, and `NEXTAUTH_SECRET`.
 2. In Supabase SQL Editor, run `supabase/migrations/001_initial_schema.sql`.
+<<<<<<< HEAD
 3. Run migrations 002 and 003 in Supabase SQL Editor, then set your admin password: `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local`, then `npx tsx scripts/update-password.ts`. Or seed a new admin with `npm run seed` (set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local`; defaults are placeholders).
+=======
+3. Seed the first admin user: `npm run seed`. 
+>>>>>>> 268fd3c49247bdfecc9ed3ed356b677c0369a43d
 4. Run `npm run dev`.
 
 ## Getting Started
