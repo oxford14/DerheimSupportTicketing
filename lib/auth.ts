@@ -4,7 +4,6 @@ import { getSupabaseServer } from "./supabase";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
-  trustHost: true, // Required for NextAuth to work on Vercel (behind proxy)
   providers: [
     CredentialsProvider({
       name: "Credentials",
