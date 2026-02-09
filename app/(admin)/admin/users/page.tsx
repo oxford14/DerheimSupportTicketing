@@ -40,7 +40,7 @@ export default async function AdminUsersPage() {
             All users
           </Typography>
         </Box>
-        <UsersTable users={users} />
+        <UsersTable users={users} isAdmin={isAdmin} currentUserId={session?.user?.id ?? null} />
       </Paper>
     </Box>
   );
